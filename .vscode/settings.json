@@ -1,0 +1,6 @@
+{
+    "terminal.integrated.env.osx": {
+        "PATH": "/Users/mkhalzov/.platformio/penv/bin:/Users/mkhalzov/.platformio/penv:/opt/local/bin:/opt/local/sbin:/Users/mkhalzov/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/usr/local/opt/gnu-sed/libexec/gnubin:/Volumes/case-sensitive/esp-open-sdk/xtensa-lx106-elf/bin:/opt/gcc-arm-none-eabi-8-2018-q4-major/bin:/usr/local/arm/bin",
+        "PLATFORMIO_CALLER": "vscode"
+    }
+}
