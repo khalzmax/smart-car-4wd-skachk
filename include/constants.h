@@ -14,6 +14,3 @@ const uint8_t motor1_sensor = 14; // A0;
 const uint8_t motor2_sensor = 15; // A1;
 const uint8_t motor3_sensor = 16; // A2;
 const uint8_t motor4_sensor = 17; // A3;
-
-const int minSpeed = 100;
-const int maxSpeed = 255;

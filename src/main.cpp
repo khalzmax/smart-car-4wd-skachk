@@ -26,8 +26,7 @@ void setup()
   pinMode(motor3_sensor, INPUT);
   pinMode(motor4_sensor, INPUT);
 
-  while (!Serial)
-    ;
+  while (!Serial) ;
   Serial.write("let's begin!");
 
   resetMotorsTimer();
