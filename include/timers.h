@@ -1,5 +1,5 @@
 void resetMotorsTimer();
-int continueTimerExpired();
+int motorsTimerExpired();
 
 void resetPrintSensorsTimer();
 int printSensorsTimerExpired();

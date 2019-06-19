@@ -6,6 +6,10 @@ void resetMotorsTimer()
 {
     motorsStartTime = millis();
 }
+int motorsTimerExpired()
+{
+    return (millis() - motorsStartTime < motorsDelayTime);
+}
 
 unsigned long printSensorsStartTime = 0;
 const int printSensorsDelayTime = 1000;
@@ -30,7 +34,7 @@ int readSensorsTimerExpired()
 }
 
 unsigned long continueStartTime = 0;
-const int continueDelayTime = 2000;
+const int continueDelayTime = 4000;
 void resetContinueTimer()
 {
     continueStartTime = millis();

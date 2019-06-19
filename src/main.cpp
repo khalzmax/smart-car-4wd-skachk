@@ -136,7 +136,7 @@ void updateState()
     state = 3;
     Serial.println("State: Continues");
   }
-  else if (state == 3 && !continueTimerExpired())
+  else if (state == 3 && continueTimerExpired())
   {
     // end of continues state
     if (speed == minSpeed)
@@ -163,7 +163,7 @@ void updateState()
 
 void stateSpeedUp()
 {
-  if (!continueTimerExpired())
+  if (motorsTimerExpired())
   {
     return;
   }
@@ -180,7 +180,7 @@ void stateSpeedUp()
 }
 void stateSpeedDown()
 {
-  if (!continueTimerExpired())
+  if (motorsTimerExpired())
   {
     return;
   }
@@ -203,10 +203,6 @@ void readSensors()
     // save prev sensors state
     prevSensors[i] = sensors[i];
   }
-  //  if (analogRead(motor1_sensor)) sensors[0]++;
-  //  if (analogRead(motor2_sensor)) sensors[1]++;
-  //  if (analogRead(motor3_sensor)) sensors[2]++;
-  //  if (analogRead(motor4_sensor)) sensors[3]++;
   sensors[0] = digitalRead(motor1_sensor);
   sensors[1] = digitalRead(motor2_sensor);
   sensors[2] = digitalRead(motor3_sensor);
@@ -235,11 +231,10 @@ void printSensors()
   {
     return;
   }
-  Serial.print("Sensors: ");
   for (int i = 0; i <= 3; i++)
   {
     Serial.print(sensorsCounter[i]);
-    Serial.print(" ");
+    Serial.print(",");
   }
   Serial.println();
   //  for (int i=0; i<=3; i++) {
