@@ -5,7 +5,8 @@
 #include "constants.h"
 #include "motors.h"
 #include "timers.h"
-
+#include "sensors.h"
+#include "speedctrl.h"
 
 void setup()
 {
@@ -15,12 +16,12 @@ void setup()
   pinMode(motor13_pin2, OUTPUT);
   pinMode(motor24_pin1, OUTPUT);
   pinMode(motor24_pin2, OUTPUT);
-  setModeStop();
+  motors_setModeStop();
   pinMode(motor1_pwm, OUTPUT);
   pinMode(motor2_pwm, OUTPUT);
   pinMode(motor3_pwm, OUTPUT);
   pinMode(motor4_pwm, OUTPUT);
-  motorsStop();
+  motors_stop();
   pinMode(motor1_sensor, INPUT);
   pinMode(motor2_sensor, INPUT);
   pinMode(motor3_sensor, INPUT);
@@ -29,14 +30,15 @@ void setup()
   while (!Serial) ;
   Serial.write("let's begin!");
 
+  motors_initialCorrections();
+  void initSensorsHistory();
+
   resetMotorsTimer();
   resetSensors();
   resetPrintSensorsTimer();
 }
 
-int sensors[] = {0, 0, 0, 0};
-int sensorsCounter[] = {0, 0, 0, 0};
-int prevSensors[] = {0, 0, 0, 0};
+
 int speed = 0;
 
 // STATE
@@ -71,24 +73,25 @@ void loop()
     break;
   }
   printSensors();
+  correctMotors();
   updateState();
 
   // OLD CODE
   /*
 //  int speed;
-  setModeFwd();
+  motors_setModeFwd();
   Serial.println("FORWARD");
   for (speed=minSpeed; speed<=maxSpeed; speed++) {
-      setMotorsSpeed(speed);
+      motors_setSpeed(speed);
       Serial.println(speed);
 //      readSensors();
 //      printSensors();
       delay(100);
   }
-  setModeBkw();
+  motors_setModeBkw();
   Serial.println("BACKWARD");
   for (speed=minSpeed; speed<=maxSpeed; speed++) {
-      setMotorsSpeed(speed);
+      motors_setSpeed(speed);
       Serial.println(speed);
 //      readSensors();
 //      printSensors();
@@ -100,15 +103,11 @@ void loop()
   }*/
 }
 
-// TIMERS
-
-
-
 // HANDLE STATE
 void initFirstState()
 {
   speed = minSpeed;
-  setModeFwd();
+  motors_setModeFwd();
 }
 // here we decide the main state
 void updateState()
@@ -142,7 +141,7 @@ void updateState()
     if (speed == minSpeed)
     {
       // change to speed up
-      setModeFwd();
+      motors_setModeFwd();
       state = 1;
       resetPrintSensorsTimer();
       resetSensors();
@@ -151,8 +150,8 @@ void updateState()
     else if (speed == maxSpeed)
     {
       // change to speed down
-      //      setModeBkw();
-      setModeFwd();
+      //      motors_setModeBkw();
+      motors_setModeFwd();
       state = 2;
       resetPrintSensorsTimer();
       resetSensors();
@@ -174,7 +173,7 @@ void stateSpeedUp()
   }
   if (speed < maxSpeed)
   {
-    setMotorsSpeed(++speed);
+    motors_setSpeed(++speed);
   }
   resetMotorsTimer();
 }
@@ -186,66 +185,24 @@ void stateSpeedDown()
   }
   if (speed > minSpeed)
   {
-    setMotorsSpeed(--speed);
+    motors_setSpeed(--speed);
   }
   resetMotorsTimer();
 }
 
-void readSensors()
-{
-  int i;
-  if (!readSensorsTimerExpired())
+// motor correction
+/* void correctMotors() {
+  int *avgSensors;
+  avgSensors = getAvgSensors();
+  // TODO how to calculate the correction value for the motor?
+  for (int i = 0; i < NUMBER_OF_SENSORS; i++)
   {
-    return;
-  }
-  for (i = 0; i < 4; i++)
-  {
-    // save prev sensors state
-    prevSensors[i] = sensors[i];
-  }
-  sensors[0] = digitalRead(motor1_sensor);
-  sensors[1] = digitalRead(motor2_sensor);
-  sensors[2] = digitalRead(motor3_sensor);
-  sensors[3] = digitalRead(motor4_sensor);
-  for (i = 0; i < 4; i++)
-  {
-    // save prev sensors state
-    if (prevSensors[i] != sensors[i])
-    {
-      sensorsCounter[i]++;
+    int sensorValue = avgSensors[i];
+    if (sensorValue < MIN_SENSOR_DIFF) {
+      return;
     }
+    // TODO scale sensors and motos speed
+    int scaledSpeed = map(sensorValue, 0, MAX_SENSOR_VALUE, 0, maxSpeed);
+    // TODO correct motors speed
   }
-  resetReadSensorsTimer();
-}
-void resetSensors()
-{
-  for (int i = 0; i <= 3; i++)
-  {
-    sensorsCounter[i] = 0;
-  }
-}
-
-void printSensors()
-{
-  if (!printSensorsTimerExpired())
-  {
-    return;
-  }
-  for (int i = 0; i <= 3; i++)
-  {
-    Serial.print(sensorsCounter[i]);
-    Serial.print(",");
-  }
-  Serial.println();
-  //  for (int i=0; i<=3; i++) {
-  //    Serial.print(sensors[i]);
-  //    Serial.print(" ");
-  //  }
-  //  Serial.println();
-  resetSensors();
-  resetPrintSensorsTimer();
-}
-
-// MOTORS
-
-
+} */

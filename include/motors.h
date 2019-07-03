@@ -2,16 +2,23 @@
 const int minSpeed = 100;
 const int maxSpeed = 255;
 
-void setModeStop();
+int motorsSpeedCorrection[] = {0, 0, 0, 0};
+const uint8_t MOTORS_SPEED_CORRECTION_VALUE = 5;
 
-void setModeBkw();
+void motors_setModeStop();
 
-void setModeFwd();
+void motors_setModeBkw();
 
-void setModeTurnRight();
+void motors_setModeFwd();
 
-void setModeTurnLeft();
+void motors_setModeTurnRight();
 
-void setMotorsSpeed(int speed);
+void motors_setModeTurnLeft();
 
-void motorsStop();
+void motors_setSpeed(int speed);
+
+void motors_stop();
+
+void motors_correctMotorSpeed(byte motorIndex, int value);
+
+void motors_initialCorrections();
