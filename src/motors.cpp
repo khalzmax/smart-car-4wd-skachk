@@ -1,6 +1,8 @@
 #include "constants.h"
 #include "motors.h"
 
+int motorsSpeedCorrection[] = {0, 0, 0, 0};
+
 void motors_setModeStop()
 {
     digitalWrite(motor13_pin1, LOW);

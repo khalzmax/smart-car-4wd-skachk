@@ -1,3 +1,5 @@
+#include "Arduino.h"
+
 #include "motors.h"
 #include "sensors.h"
 
@@ -21,3 +23,4 @@ void correctMotors()
     // correct motor speed
     motors_correctMotorSpeed(i, speedCorrectionValue);
   }
+}
