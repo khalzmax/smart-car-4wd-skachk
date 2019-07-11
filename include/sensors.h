@@ -9,7 +9,7 @@ void saveToHistory(int *updates);
 
 void calculateAvgSensorsFromHistory();
 // int calculateCommonAvg();
-int getCommonSensorsAvg();
+int getTotalSensorsAvg();
 
 void readSensors();
 void resetSensors();

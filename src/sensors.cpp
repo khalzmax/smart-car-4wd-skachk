@@ -10,7 +10,7 @@ int sensors[NUMBER_OF_SENSORS] = {0, 0, 0, 0}; // current sensors values
 int sensorsCounter[NUMBER_OF_SENSORS] = {0, 0, 0, 0}; // sensors speed
 
 int avgSensors[NUMBER_OF_SENSORS] = {0, 0, 0, 0}; // average sensors speed
-int commonSensorsAvg = 0;
+int totalSensorsAvg = 0;
 
 const uint8_t SENSORS_HISTORY_LENGTH = 10;
 int sensorsHistory[NUMBER_OF_SENSORS][SENSORS_HISTORY_LENGTH];
@@ -38,7 +38,9 @@ void readSensors()
   // save prev sensors state
   //       sensorsHistory[i] = sensors[i];
   //   }
-  saveToHistory(sensors);
+
+  // TODO not here! save history should be another task with its own timer
+  // saveToHistory(sensorsCounter);
 
   sensors[0] = digitalRead(motor1_sensor);
   sensors[1] = digitalRead(motor2_sensor);
@@ -73,6 +75,8 @@ void printSensors()
     Serial.print(sensorsCounter[i]);
     Serial.print(",");
   }
+  Serial.print(totalSensorsAvg);
+  // Serial.print(",");
   Serial.println();
   //  for (int i=0; i<=3; i++) {
   //    Serial.print(sensors[i]);
@@ -85,6 +89,10 @@ void printSensors()
 
 void saveToHistory(int *updates)
 {
+  if (!saveHistoryTimerExpired())
+  {
+    return;
+  }
   int nextHistoryNumber = lastHistoryNumber + 1;
   // get nextHistoryNumber
   if (nextHistoryNumber >= SENSORS_HISTORY_LENGTH)
@@ -102,10 +110,10 @@ void saveToHistory(int *updates)
   {
     isHistoryFull = true;
     calculateAvgSensorsFromHistory();
-    // TODO maybe calculate avg speed somewhere here? or in the calculateAvgSensorsFromHistory fn
   } else {
     isHistoryFull = false;
   }
+  resetSaveHistoryTimer()
 }
 // calculater average value for all sensor values base on avgSensors
 // int calculateCommonAvg()
@@ -118,25 +126,25 @@ void saveToHistory(int *updates)
 //   return result / NUMBER_OF_SENSORS;
 // }
 
-int getCommonSensorsAvg() {
-  return commonSensorsAvg;
+int getTotalSensorsAvg() {
+  return totalSensorsAvg;
 }
 
 // supposed to be private
 void calculateAvgSensorsFromHistory() {
-  // TODO maybe calculate avg speed somewhere in this method?
-  int commonAvgSensors = 0;
+  int totalAvgSensors = 0;
   for (int i=0; i< NUMBER_OF_SENSORS; i++)
   {
     avgSensors[i] = 0;
     for (int j=0; j<SENSORS_HISTORY_LENGTH; j++)
     {
       avgSensors[i] += sensorsHistory[i][j];
-      commonAvgSensors += sensorsHistory[i][j];
+      totalAvgSensors += sensorsHistory[i][j];
     }
     avgSensors[i] = avgSensors[i] / SENSORS_HISTORY_LENGTH;
   }
-  commonSensorsAvg = commonAvgSensors / (NUMBER_OF_SENSORS * SENSORS_HISTORY_LENGTH);
+  // calculate total avg speed
+  totalSensorsAvg = totalAvgSensors / (NUMBER_OF_SENSORS * SENSORS_HISTORY_LENGTH);
 }
 
 // getters

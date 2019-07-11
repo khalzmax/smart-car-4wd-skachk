@@ -43,3 +43,14 @@ int continueTimerExpired()
 {
     return (millis() - continueStartTime > continueDelayTime);
 }
+
+unsigned long saveHistoryStartTime = 0;
+const int saveHistoryDelayTime = 4000;
+void resetSaveHistoryTimer()
+{
+  saveHistoryStartTime = millis();
+}
+int saveHistoryTimerExpired()
+{
+  return (millis() - saveHistoryStartTime > saveHistoryDelayTime);
+}

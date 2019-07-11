@@ -73,8 +73,9 @@ void loop()
     break;
   }
   printSensors();
-  correctMotors();
+  //correctMotors(); // TODO definetely not here! maybe after calculate avg speed in another task with timer
   updateState();
+
 
   // OLD CODE
   /*
@@ -189,20 +190,3 @@ void stateSpeedDown()
   }
   resetMotorsTimer();
 }
-
-// motor correction
-/* void correctMotors() {
-  int *avgSensors;
-  avgSensors = getAvgSensors();
-  // TODO how to calculate the correction value for the motor?
-  for (int i = 0; i < NUMBER_OF_SENSORS; i++)
-  {
-    int sensorValue = avgSensors[i];
-    if (sensorValue < MIN_SENSOR_DIFF) {
-      return;
-    }
-    // TODO scale sensors and motos speed
-    int scaledSpeed = map(sensorValue, 0, MAX_SENSOR_VALUE, 0, maxSpeed);
-    // TODO correct motors speed
-  }
-} */

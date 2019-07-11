@@ -6,7 +6,7 @@
 void correctMotors()
 {
   int *avgSensors = getAvgSensors();
-  int commonSensorsAvg = getCommonSensorsAvg();
+  int commonSensorsAvg = getTotalSensorsAvg();
   if (commonSensorsAvg == 0)
   {
     return;

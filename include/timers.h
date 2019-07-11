@@ -9,3 +9,6 @@ int readSensorsTimerExpired();
 
 void resetContinueTimer();
 int continueTimerExpired();
+
+void resetSaveHistoryTimer();
+int saveHistoryTimerExpired();
