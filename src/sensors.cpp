@@ -1,26 +1,41 @@
 #include <Arduino.h>
 
+// #define DEBUG_SAVE_COUNTERS
+// #define DEBUG_AVG_SENSORS
+
 #include "sensors.h"
 #include "constants.h"
 #include "timers.h"
 
 // const uint8_t NUMBER_OF_SENSORS = 4;
 
-int sensors[NUMBER_OF_SENSORS] = {0, 0, 0, 0}; // current sensors values
+int sensors[NUMBER_OF_SENSORS] = {0, 0, 0, 0};        // current sensors values
+int prevSensors[NUMBER_OF_SENSORS] = {0, 0, 0, 0};    // last sensors values
 int sensorsCounter[NUMBER_OF_SENSORS] = {0, 0, 0, 0}; // sensors speed
 
 int avgSensors[NUMBER_OF_SENSORS] = {0, 0, 0, 0}; // average sensors speed
 int totalSensorsAvg = 0;
 
-const uint8_t SENSORS_HISTORY_LENGTH = 10;
+const uint8_t SENSORS_HISTORY_LENGTH = 5;
 int sensorsHistory[NUMBER_OF_SENSORS][SENSORS_HISTORY_LENGTH];
 bool isHistoryFull = false;
-int lastHistoryNumber = 0;
+int lastHistoryNumber = -1;
+
+// debug timers
+#include "Timer.h"
+#ifdef DEBUG_SAVE_COUNTERS
+Timer saveCountersTmr(200);
+#endif
+#ifdef DEBUG_AVG_SENSORS
+Timer avgSensorsTmr(200);
+#endif
 
 void initSensorsHistory()
 {
-  for (int i=0; i<NUMBER_OF_SENSORS; i++) {
-    for (int j=0; j<SENSORS_HISTORY_LENGTH; j++) {
+  for (int i = 0; i < NUMBER_OF_SENSORS; i++)
+  {
+    for (int j = 0; j < SENSORS_HISTORY_LENGTH; j++)
+    {
       sensorsHistory[i][j] = 0;
     }
   }
@@ -33,14 +48,6 @@ void readSensors()
   {
     return;
   }
-  // for (i = 0; i < 4; i++)
-  //   {
-  // save prev sensors state
-  //       sensorsHistory[i] = sensors[i];
-  //   }
-
-  // TODO not here! save history should be another task with its own timer
-  // saveToHistory(sensorsCounter);
 
   sensors[0] = digitalRead(motor1_sensor);
   sensors[1] = digitalRead(motor2_sensor);
@@ -49,14 +56,15 @@ void readSensors()
   for (i = 0; i < NUMBER_OF_SENSORS; i++)
   {
     // check for sensor value update
-    if (sensorsHistory[0][i] != sensors[i])
+    if (prevSensors[i] != sensors[i])
     {
       sensorsCounter[i]++;
     }
+    prevSensors[i] = sensors[i];
   }
   resetReadSensorsTimer();
 }
-void resetSensors()
+void resetSensorsCounter()
 {
   for (int i = 0; i < NUMBER_OF_SENSORS; i++)
   {
@@ -75,7 +83,7 @@ void printSensors()
     Serial.print(sensorsCounter[i]);
     Serial.print(",");
   }
-  Serial.print(totalSensorsAvg);
+  // Serial.print(totalSensorsAvg);
   // Serial.print(",");
   Serial.println();
   //  for (int i=0; i<=3; i++) {
@@ -83,75 +91,116 @@ void printSensors()
   //    Serial.print(" ");
   //  }
   //  Serial.println();
-  resetSensors();
+
+  // But maybe here is nice! it has timer inside and remember last sensors speed
+  saveCountersToHistory();
+
   resetPrintSensorsTimer();
 }
 
-void saveToHistory(int *updates)
+void saveCountersToHistory()
 {
   if (!saveHistoryTimerExpired())
   {
     return;
   }
-  int nextHistoryNumber = lastHistoryNumber + 1;
-  // get nextHistoryNumber
-  if (nextHistoryNumber >= SENSORS_HISTORY_LENGTH)
+  int currentHistoryNumber = lastHistoryNumber + 1;
+  // get currentHistoryNumber
+  if (currentHistoryNumber >= SENSORS_HISTORY_LENGTH)
   {
-    nextHistoryNumber = 0;
+    // reset currentHistoryNumber
+    currentHistoryNumber = 0;
   }
   // update history
-  for (int i=0; i< NUMBER_OF_SENSORS; i++)
+  for (int i = 0; i < NUMBER_OF_SENSORS; i++)
   {
-      sensorsHistory[nextHistoryNumber][i] = updates[i];
+    sensorsHistory[i][currentHistoryNumber] = sensorsCounter[i];
   }
-  lastHistoryNumber = nextHistoryNumber;
+  lastHistoryNumber = currentHistoryNumber;
   // check if history is full
-  if (lastHistoryNumber == 0)
+  if (lastHistoryNumber == (SENSORS_HISTORY_LENGTH - 1))
   {
     isHistoryFull = true;
     calculateAvgSensorsFromHistory();
-  } else {
+  }
+  else
+  {
     isHistoryFull = false;
   }
-  resetSaveHistoryTimer()
-}
-// calculater average value for all sensor values base on avgSensors
-// int calculateCommonAvg()
-// {
-//   int result = 0;
-//   for (int i = 0; i++; i < NUMBER_OF_SENSORS)
-//   {
-//     result += avgSensors[i];
-//   }
-//   return result / NUMBER_OF_SENSORS;
-// }
+  // reset sensorsCounter
+  resetSensorsCounter();
+  resetSaveHistoryTimer();
 
-int getTotalSensorsAvg() {
+#ifdef DEBUG_SAVE_COUNTERS
+  if (saveCountersTmr.timerExpired())
+  {
+    Serial.print("save counters info: ");
+    for (int i = 0; i < 4; i++)
+    {
+      Serial.print(sensorsHistory[i][currentHistoryNumber]);
+      Serial.print(',');
+    }
+    Serial.print(currentHistoryNumber);
+    Serial.println();
+    saveCountersTmr.resetTimer();
+  }
+#endif
+}
+
+int getTotalSensorsAvg()
+{
   return totalSensorsAvg;
 }
 
 // supposed to be private
-void calculateAvgSensorsFromHistory() {
+void calculateAvgSensorsFromHistory()
+{
   int totalAvgSensors = 0;
-  for (int i=0; i< NUMBER_OF_SENSORS; i++)
+  for (int i = 0; i < NUMBER_OF_SENSORS; i++)
   {
     avgSensors[i] = 0;
-    for (int j=0; j<SENSORS_HISTORY_LENGTH; j++)
+    for (int j = 0; j < SENSORS_HISTORY_LENGTH; j++)
     {
       avgSensors[i] += sensorsHistory[i][j];
       totalAvgSensors += sensorsHistory[i][j];
+
+#ifdef DEBUG_AVG_SENSORS
+      if (avgSensorsTmr.timerExpired())
+      {
+        Serial.print(sensorsHistory[i][j]);
+        Serial.print(',');
+      }
+#endif
     }
     avgSensors[i] = avgSensors[i] / SENSORS_HISTORY_LENGTH;
+#ifdef DEBUG_AVG_SENSORS
+    if (avgSensorsTmr.timerExpired())
+    {
+      Serial.print(" avg: ");
+      Serial.print(avgSensors[i]);
+      Serial.print("\n");
+    }
+#endif
   }
   // calculate total avg speed
   totalSensorsAvg = totalAvgSensors / (NUMBER_OF_SENSORS * SENSORS_HISTORY_LENGTH);
+#ifdef DEBUG_AVG_SENSORS
+  if (avgSensorsTmr.timerExpired())
+  {
+    Serial.print(totalSensorsAvg);
+    Serial.println();
+    avgSensorsTmr.resetTimer();
+  }
+#endif
 }
 
 // getters
 
-int *getAvgSensors() {
+int *getAvgSensors()
+{
   return avgSensors;
 }
-bool isSensorsHistoryFull() {
+bool isSensorsHistoryFull()
+{
   return isHistoryFull;
 }

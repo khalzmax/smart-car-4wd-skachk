@@ -1,4 +1,5 @@
 #include <Arduino.h>
+#include "timers.h"
 
 unsigned long motorsStartTime = 0;
 const int motorsDelayTime = 50;
@@ -6,7 +7,7 @@ void resetMotorsTimer()
 {
     motorsStartTime = millis();
 }
-int motorsTimerExpired()
+boolean motorsTimerExpired()
 {
     return (millis() - motorsStartTime < motorsDelayTime);
 }
@@ -17,18 +18,19 @@ void resetPrintSensorsTimer()
 {
     printSensorsStartTime = millis();
 }
-int printSensorsTimerExpired() {
-    return (millis() - printSensorsStartTime > printSensorsDelayTime);
+boolean printSensorsTimerExpired()
+{
+  return (millis() - printSensorsStartTime > printSensorsDelayTime);
 }
 
 
 unsigned long readSensorsStartTime = 0;
-const int readSensorsDelayTime = 1;
+const int readSensorsDelayTime = 0;
 void resetReadSensorsTimer()
 {
     readSensorsStartTime = millis();
 }
-int readSensorsTimerExpired()
+boolean readSensorsTimerExpired()
 {
     return (millis() - readSensorsStartTime > readSensorsDelayTime);
 }
@@ -39,18 +41,18 @@ void resetContinueTimer()
 {
     continueStartTime = millis();
 }
-int continueTimerExpired()
+boolean continueTimerExpired()
 {
     return (millis() - continueStartTime > continueDelayTime);
 }
 
 unsigned long saveHistoryStartTime = 0;
-const int saveHistoryDelayTime = 4000;
+const int saveHistoryDelayTime = 500;
 void resetSaveHistoryTimer()
 {
   saveHistoryStartTime = millis();
 }
-int saveHistoryTimerExpired()
+boolean saveHistoryTimerExpired()
 {
   return (millis() - saveHistoryStartTime > saveHistoryDelayTime);
 }

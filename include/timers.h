@@ -1,14 +1,21 @@
+#ifndef CAR_TIMERS
+#define CAR_TIMERS
+
+#include <Arduino.h>
+
 void resetMotorsTimer();
-int motorsTimerExpired();
+boolean motorsTimerExpired();
 
 void resetPrintSensorsTimer();
-int printSensorsTimerExpired();
+boolean printSensorsTimerExpired();
 
 void resetReadSensorsTimer();
-int readSensorsTimerExpired();
+boolean readSensorsTimerExpired();
 
 void resetContinueTimer();
-int continueTimerExpired();
+boolean continueTimerExpired();
 
 void resetSaveHistoryTimer();
-int saveHistoryTimerExpired();
+boolean saveHistoryTimerExpired();
+
+#endif

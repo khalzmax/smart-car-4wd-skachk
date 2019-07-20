@@ -1,9 +1,6 @@
-
 const int minSpeed = 100;
 const int maxSpeed = 255;
-
-const uint8_t MOTORS_SPEED_CORRECTION_VALUE = 5;
-extern int motorsSpeedCorrection[4];
+// extern int motorsSpeedCorrection[4];
 
 void motors_setModeStop();
 

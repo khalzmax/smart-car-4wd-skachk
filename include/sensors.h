@@ -5,14 +5,14 @@ const uint8_t MAX_SENSOR_VALUE = 190;
 const uint8_t MIN_SENSOR_DIFF = 5;
 
 void initSensorsHistory();
-void saveToHistory(int *updates);
+void saveCountersToHistory();
 
 void calculateAvgSensorsFromHistory();
 // int calculateCommonAvg();
 int getTotalSensorsAvg();
 
 void readSensors();
-void resetSensors();
+void resetSensorsCounter();
 void printSensors();
 
 int *getAvgSensors();

@@ -1,12 +1,26 @@
 
 #include <Arduino.h>
 
-#include "main.h"
 #include "constants.h"
 #include "motors.h"
 #include "timers.h"
 #include "sensors.h"
 #include "speedctrl.h"
+
+// functions declaration
+void setup();
+void loop();
+void initFirstState();
+void updateState();
+void stateSpeedUp();
+void stateSpeedDown();
+
+// #define DEBUG_MAIN
+
+#include "Timer.h"
+#ifdef DEBUG_MAIN
+Timer debugTmr(1000);
+#endif
 
 void setup()
 {
@@ -28,14 +42,19 @@ void setup()
   pinMode(motor4_sensor, INPUT);
 
   while (!Serial) ;
-  Serial.write("let's begin!");
+  Serial.write("let's begin!\n");
 
   motors_initialCorrections();
-  void initSensorsHistory();
+  initSensorsHistory();
 
   resetMotorsTimer();
-  resetSensors();
+  resetSensorsCounter();
   resetPrintSensorsTimer();
+  resetSaveHistoryTimer();
+
+#ifdef DEBUG_MAIN
+  // *debugTmr = Timer(500);
+#endif
 }
 
 
@@ -73,7 +92,8 @@ void loop()
     break;
   }
   printSensors();
-  //correctMotors(); // TODO definetely not here! maybe after calculate avg speed in another task with timer
+  // TODO print some state info needs here. e.g. print current speed
+  correctMotors(); // TODO definetely not here! maybe after calculate avg speed in another task with timer
   updateState();
 
 
@@ -113,6 +133,17 @@ void initFirstState()
 // here we decide the main state
 void updateState()
 {
+#ifdef DEBUG_MAIN
+  if (!debugTmr.timerExpired())
+  {
+    Serial.print("update state: ");
+    Serial.print(state);
+    Serial.print(" | ");
+    Serial.print(speed);
+    Serial.println();
+    debugTmr.resetTimer();
+  }
+#endif
   if (state == 0 && speed == 0)
   {
     initFirstState();
@@ -120,7 +151,7 @@ void updateState()
     Serial.println("State: Initial setup");
 
     resetPrintSensorsTimer();
-    resetSensors();
+    resetSensorsCounter();
   }
   else if (state == 1 && speed == maxSpeed)
   {
@@ -139,23 +170,22 @@ void updateState()
   else if (state == 3 && continueTimerExpired())
   {
     // end of continues state
-    if (speed == minSpeed)
+    if (speed <= minSpeed)
     {
       // change to speed up
       motors_setModeFwd();
       state = 1;
       resetPrintSensorsTimer();
-      resetSensors();
+      resetSensorsCounter();
       Serial.println("State: Speed up");
     }
-    else if (speed == maxSpeed)
+    else if (speed >= maxSpeed)
     {
       // change to speed down
-      //      motors_setModeBkw();
       motors_setModeFwd();
       state = 2;
       resetPrintSensorsTimer();
-      resetSensors();
+      resetSensorsCounter();
       Serial.println("State: Speed down");
     }
   }
