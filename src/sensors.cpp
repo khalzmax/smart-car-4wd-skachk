@@ -6,6 +6,7 @@
 #include "sensors.h"
 #include "constants.h"
 #include "timers.h"
+#include "speedctrl.h"
 
 // const uint8_t NUMBER_OF_SENSORS = 4;
 
@@ -16,15 +17,17 @@ int sensorsCounter[NUMBER_OF_SENSORS] = {0, 0, 0, 0}; // sensors speed
 int avgSensors[NUMBER_OF_SENSORS] = {0, 0, 0, 0}; // average sensors speed
 int totalSensorsAvg = 0;
 
-const uint8_t SENSORS_HISTORY_LENGTH = 5;
+const uint8_t SENSORS_HISTORY_LENGTH = 1;
 int sensorsHistory[NUMBER_OF_SENSORS][SENSORS_HISTORY_LENGTH];
 bool isHistoryFull = false;
 int lastHistoryNumber = -1;
 
+boolean sensors_speedCorrectionEnabled;
+
 // debug timers
 #include "Timer.h"
 #ifdef DEBUG_SAVE_COUNTERS
-Timer saveCountersTmr(200);
+    Timer saveCountersTmr(200);
 #endif
 #ifdef DEBUG_AVG_SENSORS
 Timer avgSensorsTmr(200);
@@ -39,6 +42,7 @@ void initSensorsHistory()
       sensorsHistory[i][j] = 0;
     }
   }
+  sensors_speedCorrectionEnabled = true;
 }
 
 void readSensors()
@@ -72,9 +76,9 @@ void resetSensorsCounter()
   }
 }
 
-void printSensors()
+void handleSensors()
 {
-  if (!printSensorsTimerExpired())
+  if (!handleSensorsTimerExpired())
   {
     return;
   }
@@ -94,8 +98,12 @@ void printSensors()
 
   // But maybe here is nice! it has timer inside and remember last sensors speed
   saveCountersToHistory();
+  if (sensors_speedCorrectionEnabled)
+  {
+    correctMotors();
+  }
 
-  resetPrintSensorsTimer();
+  resetHandleSensorsTimer();
 }
 
 void saveCountersToHistory()

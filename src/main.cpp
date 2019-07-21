@@ -5,7 +5,7 @@
 #include "motors.h"
 #include "timers.h"
 #include "sensors.h"
-#include "speedctrl.h"
+// #include "speedctrl.h"
 
 // functions declaration
 void setup();
@@ -49,7 +49,7 @@ void setup()
 
   resetMotorsTimer();
   resetSensorsCounter();
-  resetPrintSensorsTimer();
+  resetHandleSensorsTimer();
   resetSaveHistoryTimer();
 
 #ifdef DEBUG_MAIN
@@ -91,9 +91,9 @@ void loop()
   default:
     break;
   }
-  printSensors();
+  handleSensors();
   // TODO print some state info needs here. e.g. print current speed
-  correctMotors(); // TODO definetely not here! maybe after calculate avg speed in another task with timer
+  //correctMotors(); // TODO definetely not here! maybe after calculate avg speed in another task with timer
   updateState();
 
 
@@ -150,7 +150,7 @@ void updateState()
     state = 1;
     Serial.println("State: Initial setup");
 
-    resetPrintSensorsTimer();
+    resetHandleSensorsTimer();
     resetSensorsCounter();
   }
   else if (state == 1 && speed == maxSpeed)
@@ -175,7 +175,7 @@ void updateState()
       // change to speed up
       motors_setModeFwd();
       state = 1;
-      resetPrintSensorsTimer();
+      resetHandleSensorsTimer();
       resetSensorsCounter();
       Serial.println("State: Speed up");
     }
@@ -184,7 +184,7 @@ void updateState()
       // change to speed down
       motors_setModeFwd();
       state = 2;
-      resetPrintSensorsTimer();
+      resetHandleSensorsTimer();
       resetSensorsCounter();
       Serial.println("State: Speed down");
     }

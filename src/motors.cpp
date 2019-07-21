@@ -3,15 +3,16 @@
 #include "motors.h"
 
 // #define DEBUG_MOTORS
+// #define DEBUG_CORRECTIONS
 
-#ifdef DEBUG_MOTORS
 #include "Timer.h"
-Timer debugTmr(500);
+#ifdef DEBUG_MOTORS
+Timer debugTmr(1000); // this one is not working :( other timers are also enabled btw
 #endif
 
 // const int minSpeed = 100;
 // const int maxSpeed = 255;
-const uint8_t MOTORS_SPEED_CORRECTION_VALUE = 5;
+const uint8_t MOTORS_SPEED_CORRECTION_VALUE = 3;
 
 int motorsSpeedCorrection[] = {0, 0, 0, 0};
 
@@ -66,9 +67,10 @@ void motors_setSpeed(int speed)
 #ifdef DEBUG_MOTORS
   if (debugTmr.timerExpired())
   {
+    Serial.print("speed corrections: ");
     for (int i = 0; i < 4; i++)
     {
-      Serial.print(getSafeSpeed(speed + motorsSpeedCorrection[i]));
+      Serial.print(getSafeSpeed(motorsSpeedCorrection[i]));
       Serial.print(',');
     }
     Serial.println();
@@ -95,14 +97,34 @@ void motors_stop()
 
 void motors_correctMotorSpeed(byte motorIndex, int value = MOTORS_SPEED_CORRECTION_VALUE)
 {
+#ifdef DEBUG_CORRECTIONS
+  Serial.println();
+  Serial.print("Correct speed m #");
+  Serial.print(motorIndex);
+  Serial.print(" val=");
+  Serial.print(value);
+#endif
   motorsSpeedCorrection[motorIndex] += value;
+#ifdef DEBUG_CORRECTIONS
+  Serial.print(" final=");
+  Serial.print(motorsSpeedCorrection[motorIndex]);
+
+  Serial.println();
+  Serial.print("Speed corrections:");
+  for (int i = 0; i < 4; i++)
+  {
+    Serial.print(motorsSpeedCorrection[i]);
+    Serial.print(',');
+  }
+#endif
 };
 void motors_initialCorrections()
 {
   motorsSpeedCorrection[0] = 0 * MOTORS_SPEED_CORRECTION_VALUE;
   motorsSpeedCorrection[1] = 0 * MOTORS_SPEED_CORRECTION_VALUE;
-  motorsSpeedCorrection[2] = 3 * MOTORS_SPEED_CORRECTION_VALUE;
+  motorsSpeedCorrection[2] = 0 * MOTORS_SPEED_CORRECTION_VALUE;
   motorsSpeedCorrection[3] = 0 * MOTORS_SPEED_CORRECTION_VALUE;
+#ifdef DEBUG_CORRECTIONS
   Serial.println("Speed corrections:");
   for (int i = 0; i < 4; i++)
   {
@@ -110,4 +132,5 @@ void motors_initialCorrections()
     Serial.print(',');
   }
   Serial.println();
+#endif
 }

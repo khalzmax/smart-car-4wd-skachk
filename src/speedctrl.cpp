@@ -12,6 +12,9 @@
 // #endif
 
 // TODO this works not properly!
+// need to reset it during speed up / down and enable when going stable
+// or reset when corrections going out of control (>100 ets)
+// or get avg history every time when save history
 void correctMotors()
 {
   if (!isSensorsHistoryFull()) {
@@ -24,37 +27,36 @@ void correctMotors()
     return;
   }
 #ifdef DEBUG_SPEED_CTRL
-    // if (debugTmr.timerExpired())
-    // {
-      Serial.print("speed controller: ");
-    // }
+      Serial.print("speed controller: common_avg: ");
+      Serial.print(commonSensorsAvg);
 #endif
   for (int i = 0; i < NUMBER_OF_SENSORS; i++)
   {
-    int diff = commonSensorsAvg - avgSensors[i];
-    if (diff < MIN_SENSOR_DIFF)
+    int8_t diff = commonSensorsAvg - avgSensors[i];
+    uint8_t absDiff = abs(diff);
+    if (absDiff < MIN_SENSOR_DIFF) // TODO get module value
     {
       continue;
     }
     // scale sensor diff and motor speed
-    int speedCorrectionValue = map(diff, 0, MAX_SENSOR_VALUE, 0, maxSpeed);
+    int speedCorrectionValue = map(absDiff, 0, MAX_SENSOR_VALUE, 0, maxSpeed);
+    // check correction direction + / -
+    if (diff < 0) {
+      speedCorrectionValue *= -1;
+    }
     // correct motor speed
     motors_correctMotorSpeed(i, speedCorrectionValue);
 #ifdef DEBUG_SPEED_CTRL
-    // if (debugTmr.timerExpired())
-    // {
-      Serial.print(i);
-      Serial.print(':');
-      Serial.print(speedCorrectionValue);
-      Serial.print(", ");
-    // }
+    Serial.println();
+    Serial.print(">> motor #");
+    Serial.print(i);
+    Serial.print(": diff: ");
+    Serial.print(diff);
+    Serial.print(", corr: ");
+    Serial.print(speedCorrectionValue);
 #endif
   }
 #ifdef DEBUG_SPEED_CTRL
-  // if (debugTmr.timerExpired())
-  // {
-    Serial.println();
-    // debugTmr.resetTimer();
-  // }
+  Serial.println();
 #endif
 }

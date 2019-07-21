@@ -12,15 +12,15 @@ boolean motorsTimerExpired()
     return (millis() - motorsStartTime < motorsDelayTime);
 }
 
-unsigned long printSensorsStartTime = 0;
-const int printSensorsDelayTime = 1000;
-void resetPrintSensorsTimer()
+unsigned long handleSensorsStartTime = 0;
+const int handleSensorsDelayTime = 1000;
+void resetHandleSensorsTimer()
 {
-    printSensorsStartTime = millis();
+    handleSensorsStartTime = millis();
 }
-boolean printSensorsTimerExpired()
+boolean handleSensorsTimerExpired()
 {
-  return (millis() - printSensorsStartTime > printSensorsDelayTime);
+  return (millis() - handleSensorsStartTime > handleSensorsDelayTime);
 }
 
 

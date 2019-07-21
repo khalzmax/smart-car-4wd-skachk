@@ -6,8 +6,8 @@
 void resetMotorsTimer();
 boolean motorsTimerExpired();
 
-void resetPrintSensorsTimer();
-boolean printSensorsTimerExpired();
+void resetHandleSensorsTimer();
+boolean handleSensorsTimerExpired();
 
 void resetReadSensorsTimer();
 boolean readSensorsTimerExpired();
