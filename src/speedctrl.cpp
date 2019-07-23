@@ -3,13 +3,7 @@
 #include "motors.h"
 #include "sensors.h"
 
-// #include "Timer.h"
-
-#define DEBUG_SPEED_CTRL
-
-// #ifdef DEBUG_SPEED_CTRL
-// Timer debugTmr(500);
-// #endif
+// #define DEBUG_SPEED_CTRL
 
 // TODO this works not properly!
 // need to reset it during speed up / down and enable when going stable
@@ -20,6 +14,9 @@ void correctMotors()
   if (!isSensorsHistoryFull()) {
     return ;
   }
+
+  motors_flushCorrections();
+
   int *avgSensors = getAvgSensors();
   int commonSensorsAvg = getTotalSensorsAvg();
   if (commonSensorsAvg == 0)
@@ -27,14 +24,14 @@ void correctMotors()
     return;
   }
 #ifdef DEBUG_SPEED_CTRL
-      Serial.print("speed controller: common_avg: ");
+      Serial.print("Speed controller. \ncommon_avg: ");
       Serial.print(commonSensorsAvg);
 #endif
   for (int i = 0; i < NUMBER_OF_SENSORS; i++)
   {
     int8_t diff = commonSensorsAvg - avgSensors[i];
     uint8_t absDiff = abs(diff);
-    if (absDiff < MIN_SENSOR_DIFF) // TODO get module value
+    if (absDiff < MIN_SENSOR_DIFF)
     {
       continue;
     }

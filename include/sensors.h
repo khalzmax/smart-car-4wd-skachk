@@ -8,10 +8,10 @@ void initSensorsHistory();
 void saveCountersToHistory();
 
 void calculateAvgSensorsFromHistory();
-// int calculateCommonAvg();
 int getTotalSensorsAvg();
 
 void readSensors();
+void printSensors();
 void resetSensorsCounter();
 void handleSensors();
 

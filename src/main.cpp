@@ -5,7 +5,6 @@
 #include "motors.h"
 #include "timers.h"
 #include "sensors.h"
-// #include "speedctrl.h"
 
 // functions declaration
 void setup();
@@ -15,10 +14,10 @@ void updateState();
 void stateSpeedUp();
 void stateSpeedDown();
 
-// #define DEBUG_MAIN
-
+// #define STATE_INFO
+// #define DEBUG_STATE
 #include "Timer.h"
-#ifdef DEBUG_MAIN
+#ifdef DEBUG_STATE
 Timer debugTmr(1000);
 #endif
 
@@ -42,7 +41,9 @@ void setup()
   pinMode(motor4_sensor, INPUT);
 
   while (!Serial) ;
+#ifdef DEBUG_STATE
   Serial.write("let's begin!\n");
+#endif
 
   motors_initialCorrections();
   initSensorsHistory();
@@ -51,10 +52,6 @@ void setup()
   resetSensorsCounter();
   resetHandleSensorsTimer();
   resetSaveHistoryTimer();
-
-#ifdef DEBUG_MAIN
-  // *debugTmr = Timer(500);
-#endif
 }
 
 
@@ -92,36 +89,7 @@ void loop()
     break;
   }
   handleSensors();
-  // TODO print some state info needs here. e.g. print current speed
-  //correctMotors(); // TODO definetely not here! maybe after calculate avg speed in another task with timer
   updateState();
-
-
-  // OLD CODE
-  /*
-//  int speed;
-  motors_setModeFwd();
-  Serial.println("FORWARD");
-  for (speed=minSpeed; speed<=maxSpeed; speed++) {
-      motors_setSpeed(speed);
-      Serial.println(speed);
-//      readSensors();
-//      printSensors();
-      delay(100);
-  }
-  motors_setModeBkw();
-  Serial.println("BACKWARD");
-  for (speed=minSpeed; speed<=maxSpeed; speed++) {
-      motors_setSpeed(speed);
-      Serial.println(speed);
-//      readSensors();
-//      printSensors();
-      delay(100);
-  }
-  */
-  /*if (Serial.available()) {
-    int speed = Serial.parseInt();
-  }*/
 }
 
 // HANDLE STATE
@@ -133,7 +101,7 @@ void initFirstState()
 // here we decide the main state
 void updateState()
 {
-#ifdef DEBUG_MAIN
+#ifdef DEBUG_STATE
   if (!debugTmr.timerExpired())
   {
     Serial.print("update state: ");
@@ -148,8 +116,9 @@ void updateState()
   {
     initFirstState();
     state = 1;
+#ifdef STATE_INFO
     Serial.println("State: Initial setup");
-
+#endif
     resetHandleSensorsTimer();
     resetSensorsCounter();
   }
@@ -158,14 +127,18 @@ void updateState()
     // rich maximum speed => change to continues state
     resetContinueTimer();
     state = 3;
+#ifdef STATE_INFO
     Serial.println("State: Continues");
+#endif
   }
   else if (state == 2 && speed == minSpeed)
   {
     // rich minimum speed => change to continues state
     resetContinueTimer();
     state = 3;
+#ifdef STATE_INFO
     Serial.println("State: Continues");
+#endif
   }
   else if (state == 3 && continueTimerExpired())
   {
@@ -177,7 +150,9 @@ void updateState()
       state = 1;
       resetHandleSensorsTimer();
       resetSensorsCounter();
+#ifdef STATE_INFO
       Serial.println("State: Speed up");
+#endif
     }
     else if (speed >= maxSpeed)
     {
@@ -186,7 +161,9 @@ void updateState()
       state = 2;
       resetHandleSensorsTimer();
       resetSensorsCounter();
+#ifdef STATE_INFO
       Serial.println("State: Speed down");
+#endif
     }
   }
 }

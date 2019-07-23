@@ -82,21 +82,8 @@ void handleSensors()
   {
     return;
   }
-  for (int i = 0; i <= 3; i++)
-  {
-    Serial.print(sensorsCounter[i]);
-    Serial.print(",");
-  }
-  // Serial.print(totalSensorsAvg);
-  // Serial.print(",");
-  Serial.println();
-  //  for (int i=0; i<=3; i++) {
-  //    Serial.print(sensors[i]);
-  //    Serial.print(" ");
-  //  }
-  //  Serial.println();
+  printSensors();
 
-  // But maybe here is nice! it has timer inside and remember last sensors speed
   saveCountersToHistory();
   if (sensors_speedCorrectionEnabled)
   {
@@ -104,6 +91,15 @@ void handleSensors()
   }
 
   resetHandleSensorsTimer();
+}
+void printSensors()
+{
+  for (int i = 0; i <= 3; i++)
+  {
+    Serial.print(sensorsCounter[i]);
+    Serial.print(",");
+  }
+  Serial.println();
 }
 
 void saveCountersToHistory()
