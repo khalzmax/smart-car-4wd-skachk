@@ -3,6 +3,7 @@
 
 #include "constants.h"
 #include "motors.h"
+#include "speedctrl.h"
 #include "timers.h"
 #include "sensors.h"
 
@@ -25,27 +26,14 @@ void setup()
 {
   Serial.begin(9600);
 
-  pinMode(motor13_pin1, OUTPUT);
-  pinMode(motor13_pin2, OUTPUT);
-  pinMode(motor24_pin1, OUTPUT);
-  pinMode(motor24_pin2, OUTPUT);
-  motors_setModeStop();
-  pinMode(motor1_pwm, OUTPUT);
-  pinMode(motor2_pwm, OUTPUT);
-  pinMode(motor3_pwm, OUTPUT);
-  pinMode(motor4_pwm, OUTPUT);
-  motors_stop();
-  pinMode(motor1_sensor, INPUT);
-  pinMode(motor2_sensor, INPUT);
-  pinMode(motor3_sensor, INPUT);
-  pinMode(motor4_sensor, INPUT);
+  motors_init();
+  sensors_init();
 
   while (!Serial) ;
 #ifdef DEBUG_STATE
   Serial.write("let's begin!\n");
 #endif
 
-  motors_initialCorrections();
   initSensorsHistory();
 
   resetMotorsTimer();
@@ -181,7 +169,7 @@ void stateSpeedUp()
   }
   if (speed < maxSpeed)
   {
-    motors_setSpeed(++speed);
+    speed_setSpeed(++speed);
   }
   resetMotorsTimer();
 }
@@ -193,7 +181,7 @@ void stateSpeedDown()
   }
   if (speed > minSpeed)
   {
-    motors_setSpeed(--speed);
+    speed_setSpeed(--speed);
   }
   resetMotorsTimer();
 }

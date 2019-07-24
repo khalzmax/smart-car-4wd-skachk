@@ -33,6 +33,14 @@ boolean sensors_speedCorrectionEnabled;
 Timer avgSensorsTmr(200);
 #endif
 
+void sensors_init()
+{
+  pinMode(motor1_sensor, INPUT);
+  pinMode(motor2_sensor, INPUT);
+  pinMode(motor3_sensor, INPUT);
+  pinMode(motor4_sensor, INPUT);
+}
+
 void initSensorsHistory()
 {
   for (int i = 0; i < NUMBER_OF_SENSORS; i++)

@@ -4,6 +4,8 @@ const uint8_t NUMBER_OF_SENSORS = 4;
 const uint8_t MAX_SENSOR_VALUE = 190;
 const uint8_t MIN_SENSOR_DIFF = 4;
 
+void sensors_init();
+
 void initSensorsHistory();
 void saveCountersToHistory();
 
