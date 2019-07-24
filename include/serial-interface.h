@@ -1,0 +1,12 @@
+void readSerial();
+
+enum SERIAL_CMD
+{
+  CMD_STOP,
+  CMD_GO,
+  CMD_FWD,
+  CMD_BKW,
+  CMD_SETSPEED,
+  CMD_MOTOR_CORRECTION_ON,
+  CMD_MOTOR_CORRECTION_OFF
+};

@@ -6,6 +6,7 @@
 #include "speedctrl.h"
 #include "timers.h"
 #include "sensors.h"
+#include "serial-interface.h"
 
 // functions declaration
 void setup();
@@ -58,6 +59,7 @@ void loop()
 {
 
   readSensors();
+  readSerial();
   // handle state;
   switch (state)
   {
