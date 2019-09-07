@@ -8,6 +8,9 @@
 #include "sensors.h"
 #include "serial-interface.h"
 
+#include <ros.h>
+#include <std_msgs/String.h>
+
 // functions declaration
 void setup();
 void loop();
