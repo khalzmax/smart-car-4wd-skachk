@@ -51,6 +51,7 @@ int speed = 0;
  0 - default state;
  1 - speed up;
  2 - speed down;
+ 3 - continue
 */
 int state = 0;
 
@@ -87,7 +88,7 @@ void initFirstState()
   motors_setModeFwd();
 }
 // here we decide the main state
-void updateState()
+void updateState(int forceState)
 {
 #ifdef DEBUG_STATE
   if (!debugTmr.timerExpired())
@@ -158,6 +159,7 @@ void updateState()
 
 void stateSpeedUp()
 {
+  state = 1;
   if (motorsTimerExpired())
   {
     return;
@@ -175,6 +177,7 @@ void stateSpeedUp()
 }
 void stateSpeedDown()
 {
+  state = 3;
   if (motorsTimerExpired())
   {
     return;
