@@ -11,5 +11,5 @@ void Timer::resetTimer()
 }
 boolean Timer::timerExpired()
 {
-  return (millis() - startTime - delayTime);
+  return (millis() - startTime > delayTime);
 }

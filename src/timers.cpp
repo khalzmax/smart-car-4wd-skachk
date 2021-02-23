@@ -9,7 +9,7 @@ void resetMotorsTimer()
 }
 boolean motorsTimerExpired()
 {
-    return (millis() - motorsStartTime < motorsDelayTime);
+    return (millis() - motorsStartTime < motorsDelayTime); // TODO replace < with > ??
 }
 
 unsigned long handleSensorsStartTime = 0;
